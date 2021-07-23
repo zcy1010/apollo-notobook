@@ -1,0 +1,153 @@
+# 开源项目：Apollo
+
+## 简介
+
+### 产生原因
+
+* 随着程序功能的日益复杂，程序的配置日益增多：各种功能的开关、参数的配置、服务器的地址等。
+* 对程序配置的期望值也越来越高：配置修改后实时生效，分环境、分集群管理配置，完善的权限、审核机制等
+* 在这样的大环境下，传统的通过配置文件、数据库等方式已经越来越无法满足开发人员对配置管理的需求。
+
+### 简介
+
+ Apollo（阿波罗）是携程框架部门研发的配置管理平台，能够集中化管理应用不同环境、不同集群的配置，配置修改后能够实时推送到应用端，并且具备规范的权限、流程治理等特性。
+​ 服务端基于Spring Boot和Spring Cloud开发，打包后可以直接运行，不需要额外安装Tomcat等应用容器。
+​ Java客户端不依赖任何框架，能够运行于所有Java运行时环境，同时对Spring环境也有较好的支持。.Net客户端不依赖任何框架，能够运行于所有.Net运行时环境。
+
+# 开源项目：Apollo
+
+## 简介
+
+### 产生原因
+
+* 随着程序功能的日益复杂，程序的配置日益增多：各种功能的开关、参数的配置、服务器的地址等。
+* 对程序配置的期望值也越来越高：配置修改后实时生效，分环境、分集群管理配置，完善的权限、审核机制等
+* 在这样的大环境下，传统的通过配置文件、数据库等方式已经越来越无法满足开发人员对配置管理的需求。
+
+### 简介
+
+ Apollo（阿波罗）是携程框架部门研发的配置管理平台，能够集中化管理应用不同环境、不同集群的配置，配置修改后能够实时推送到应用端，并且具备规范的权限、流程治理等特性。
+​ 服务端基于Spring Boot和Spring Cloud开发，打包后可以直接运行，不需要额外安装Tomcat等应用容器。
+​ Java客户端不依赖任何框架，能够运行于所有Java运行时环境，同时对Spring环境也有较好的支持。.Net客户端不依赖任何框架，能够运行于所有.Net运行时环境。
+
+## 部署
+
+### 环境准备
+
+#### Java
+
+Java1.8以上。
+
+![image-20210723181540065](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210723181540065.png)
+
+#### mySQL
+
+5.6以上
+
+![image-20210723181907378](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210723181907378.png)
+
+### Apollo-quick-start 下载
+
+仓库下载
+
+![image-20210723182235637](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210723182235637.png)![image-20210723182259368](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210723182259368.png)
+
+![image-20210723182306078](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210723182306078.png)
+
+### 创建数据库
+
+#### 创建ApolloPortalDB
+
+![image-20210723212716986](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210723212716986.png)
+
+![image-20210723212858681](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210723212858681.png)
+
+#### 创建ApolloConfigDB
+
+![image-20210723213007694](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210723213007694.png)
+
+![image-20210723213100158](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210723213100158.png)
+
+### 启动Apollo配置中心
+
+#### 确定端口未占用
+
+Quick Start脚本会在本地启动3个服务，分别使用8070, 8080, 8090端口，请确保这3个端口当前没有被使用。
+
+![image-20210723213425940](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210723213425940.png)
+
+3个端口均为占用
+
+执行./sh文件，发现不能执行sh文件
+
+处理方法：
+
+* 在windows下想要执行shell脚本，需要使用到"Git Bash"，所以我们需要先安装Git。
+* 配置Git环境变量
+
+但是最终启动失败
+
+![image-20210723214645328](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210723214645328.png)
+
+查看Apollo-service.log 日志后，发现
+
+![image-20210723215436668](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210723215436668.png)
+
+MySQL相关配置不正确：
+
+修改后如下：
+
+![image-20210723215120334](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210723215120334.png)
+
+启动成功：
+
+![image-20210723215520020](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210723215520020.png)
+
+成功启动：
+
+1. 输入用户名apollo，密码admin后登录
+
+![image-20210723215618921](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210723215618921.png)
+
+![image-20210723215648000](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210723215648000.png)
+
+### 启动客户端程序
+
+准备了一个简单的Demo客户端来演示从Apollo配置中心获取配置。
+
+程序很简单，就是用户输入一个key的名字，程序会输出这个key对应的值。
+
+如果没找到这个key，则输出undefined。
+
+同时，客户端还会监听配置变化事件，一旦有变化就会输出变化的配置信息。
+
+运行`./demo.sh client`启动Demo客户端，忽略前面的调试信息，可以看到如下提示：
+
+![image-20210723220018324](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210723220018324.png)
+
+输入`timeout`，会看到如下信息：
+
+![image-20210723220039612](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210723220039612.png)
+
+在配置界面点击timeout这一项的编辑按钮
+
+![image-20210723220124898](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210723220124898.png)
+
+点击发布按钮，并填写发布信息
+
+![image-20210723220147084](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210723220147084.png)
+
+![image-20210723220207235](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210723220207235.png)
+
+
+
+客户端一直在运行的话，在配置发布后就会监听到配置变化，并输出修改的配置信息：
+
+![image-20210723220235624](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210723220235624.png)
+
+再次输入`timeout`查看对应的值，会看到如下信息：
+
+![image-20210723220319767](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210723220319767.png)
+
+接入新的apollo
+
