@@ -151,3 +151,61 @@ MySQL相关配置不正确：
 
 接入新的apollo
 
+//TODO
+
+# Apollo 框架介绍
+
+下图是Apollo的作者宋顺给出的架构图：
+
+![image-20210724220918673](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210724220918673.png)
+
+![overall-architecture](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/overall-architecture.png)
+
+## 四个核心模块及其主要功能
+
+1. **ConfigService**
+
+2. - 提供配置获取接口
+   - 提供配置推送接口
+   - 服务于Apollo客户端
+
+3. **AdminService**
+
+4. - 提供配置管理接口
+   - 提供配置修改发布接口
+   - 服务于管理界面Portal
+
+5. **Client**
+
+6. - 为应用获取配置，支持实时更新
+   - 通过MetaServer获取ConfigService的服务列表
+   - 使用客户端软负载SLB方式调用ConfigService
+
+7. **Portal**
+
+8. - 配置管理界面
+   - 通过MetaServer获取AdminService的服务列表
+   - 使用客户端软负载SLB方式调用AdminService
+
+## 三个辅助服务发现模块
+
+1. **Eureka**
+
+2. - 用于服务发现和注册
+   - Config/AdminService注册实例并定期报心跳
+   - 和ConfigService住在一起部署
+
+3. **MetaServer**
+
+4. - Portal通过域名访问MetaServer获取AdminService的地址列表
+   - Client通过域名访问MetaServer获取ConfigService的地址列表
+   - 相当于一个Eureka Proxy
+   - 逻辑角色，和ConfigService住在一起部署
+
+5. **NginxLB**
+
+6. - 和域名系统配合，协助Portal访问MetaServer获取AdminService地址列表
+   - 和域名系统配合，协助Client访问MetaServer获取ConfigService地址列表
+   - 和域名系统配合，协助用户访问Portal进行配置管理
+
+更详细的介绍可见https://mp.weixin.qq.com/s/-hUaQPzfsl9Lm3IqQW3VDQ
