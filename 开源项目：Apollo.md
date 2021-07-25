@@ -209,3 +209,113 @@ MySQL相关配置不正确：
    - 和域名系统配合，协助用户访问Portal进行配置管理
 
 更详细的介绍可见https://mp.weixin.qq.com/s/-hUaQPzfsl9Lm3IqQW3VDQ
+
+# Apollo模块（第五天）
+
+## Config Service
+
+- 提供配置获取接口
+- 提供配置更新推送接口（基于Http long polling）
+  - 服务端使用[Spring DeferredResult](http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/context/request/async/DeferredResult.html)实现异步化，从而大大增加长连接数量
+  - 目前使用的tomcat embed默认配置是最多10000个连接（可以调整），使用了4C8G的虚拟机实测可以支撑10000个连接，所以满足需求（一个应用实例只会发起一个长连接）。
+- 接口服务对象为Apollo客户端
+
+## Admin Service
+
+- 提供配置管理接口
+- 提供配置修改、发布等接口
+- 接口服务对象为Portal
+
+## Meta Server
+
+- Portal通过域名访问Meta Server获取Admin Service服务列表（IP+Port）
+- Client通过域名访问Meta Server获取Config Service服务列表（IP+Port）
+- Meta Server从Eureka获取Config Service和Admin Service的服务信息，相当于是一个Eureka Client
+- 增设一个Meta Server的角色主要是为了封装服务发现的细节，对Portal和Client而言，永远通过一个Http接口获取Admin Service和Config Service的服务信息，而不需要关心背后实际的服务注册和发现组件
+- Meta Server只是一个逻辑角色，在部署时和Config Service是在一个JVM进程中的，所以IP、端口和Config Service一致
+
+##  Eureka
+
+- 基于[Eureka](https://github.com/Netflix/eureka)和[Spring Cloud Netflix](https://cloud.spring.io/spring-cloud-netflix/)提供服务注册和发现
+- Config Service和Admin Service会向Eureka注册服务，并保持心跳
+- 为了简单起见，目前Eureka在部署时和Config Service是在一个JVM进程中的（通过Spring Cloud Netflix）
+
+## Portal
+
+- 提供Web界面供用户管理配置
+- 通过Meta Server获取Admin Service服务列表（IP+Port），通过IP+Port访问服务
+- 在Portal侧做load balance、错误重试
+
+##  Client
+
+- Apollo提供的客户端程序，为应用提供配置获取、实时更新等功能
+- 通过Meta Server获取Config Service服务列表（IP+Port），通过IP+Port访问服务
+- 在Client侧做load balance、错误重试
+
+# Apollo E-R Diagram(第六天)
+
+## 主体E-R Diagram
+
+- App
+  - App信息
+- AppNamespace
+  - App下Namespace的元信息
+- Cluster
+  - 集群信息
+- Namespace
+  - 集群下的namespace
+- Item
+  - Namespace的配置，每个Item是一个key, value组合
+- Release
+  - Namespace发布的配置，每个发布包含发布时该Namespace的所有配置
+- Commit
+  - Namespace下的配置更改记录
+- Audit
+  - 审计信息，记录用户在何时使用何种方式操作了哪个实体。
+
+## 权限相关E-R Diagram
+
+## 主体ER图
+
+![image-20210725212026406](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210725212026406.png)
+
+- App
+  - App信息
+- AppNamespace
+  - App下Namespace的元信息
+- Cluster
+  - 集群信息
+- Namespace
+  - 集群下的namespace
+- Item
+  - Namespace的配置，每个Item是一个key, value组合
+- Release
+  - Namespace发布的配置，每个发布包含发布时该Namespace的所有配置
+- Commit
+  - Namespace下的配置更改记录
+- Audit
+  - 审计信息，记录用户在何时使用何种方式操作了哪个实体。
+
+## 权限ER图
+
+![image-20210725212141913](C:\Users\zcy\AppData\Roaming\Typora\typora-user-images\image-20210725212141913.png)
+
+- User
+  - Apollo portal用户
+- UserRole
+  - 用户和角色的关系
+- Role
+  - 角色
+- RolePermission
+  - 角色和权限的关系
+- Permission
+  - 权限
+  - 对应到具体的实体资源和操作，如修改NamespaceA的配置，发布NamespaceB的配置等。
+- Consumer
+  - 第三方应用
+- ConsumerToken
+  - 发给第三方应用的token
+- ConsumerRole
+  - 第三方应用和角色的关系
+- ConsumerAudit
+  - 第三方应用访问审计
